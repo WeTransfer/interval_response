@@ -22,17 +22,20 @@ module IntervalResponse
     # _within_ that representation, but the representation has since changed and the offsets
     # no longer make sense. In that case we are supposed to answer with a 200 and the full
     # monty.
-    return new(interval_map, ENTIRE_RESOURCE_RANGE, nil) if http_if_range_header_or_nil && http_if_range_header_or_nil != interval_map.etag
+    if http_if_range_header_or_nil && http_if_range_header_or_nil != interval_map.etag
+      Measurometer.increment_counter('interval_response.if_range_mismatch', 1)
+      return new(interval_map, ENTIRE_RESOURCE_RANGE, nil)
+    end
 
     if http_if_range_header_or_nil
-      Measurometer.increment_counter('interval_response.if_range_provided')
+      Measurometer.increment_counter('interval_response.if_range_match', 1)
     elsif http_range_header_value_or_nil
-      Measurometer.increment_counter('interval_response.if_range_not_provided')
+      Measurometer.increment_counter('interval_response.if_range_not_provided', 1)
     end
 
     prepare_response(interval_map, http_range_header_value_or_nil, http_if_range_header_or_nil).tap do |res|
       response_type_name_for_metric = res.class.to_s.split('::').last.downcase # Some::Module::Empty => empty
-      Measurometer.increment_counter('interval_response.resp_%s' % response_type_name_for_metric)
+      Measurometer.increment_counter('interval_response.resp_%s' % response_type_name_for_metric, 1)
     end
   end
 
