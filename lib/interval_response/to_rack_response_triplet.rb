@@ -22,7 +22,7 @@ module IntervalResponse::ToRackResponseTriplet
           with_each_chunk(range_in_segment) do |offset, read_n|
             yield segment.slice(offset, read_n)
           end
-        when IO
+        when Tempfile, File, IO
           with_each_chunk(range_in_segment) do |offset, read_n|
             segment.seek(offset, IO::SEEK_SET)
             yield segment.read_nonblock(read_n, buf)
