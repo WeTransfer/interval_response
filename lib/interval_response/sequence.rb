@@ -1,3 +1,5 @@
+require 'digest'
+
 # An interval sequence represents a linear sequence of non-overlapping,
 # joined intervals. For example, an HTTP response which consists of
 # multiple edge included segments, or a timeline with clips joined together.
