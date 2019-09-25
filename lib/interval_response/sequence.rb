@@ -12,7 +12,7 @@ class IntervalResponse::Sequence
   def initialize(*segments)
     @intervals = []
     @size = 0
-    segments.each {|s| self << s }
+    segments.each { |s| self << s }
   end
 
   def <<(segment)
@@ -33,13 +33,15 @@ class IntervalResponse::Sequence
 
     # And normal case - walk through included intervals
     included_intervals.each do |interval|
-      int_start, int_end = interval.offset, interval.offset + interval.size - 1
-      req_start, req_end = from_range_in_resource.begin, from_range_in_resource.end
+      int_start = interval.offset
+      int_end = interval.offset + interval.size - 1
+      req_start = from_range_in_resource.begin
+      req_end = from_range_in_resource.end
       range_within_interval = (max(int_start, req_start) - int_start)..(min(int_end, req_end) - int_start)
 
       # Allow Sequences to be composed together
       if interval.segment.respond_to?(:each_in_range)
-        interval.segment.each_in_range(range_within_interval) do | sub_segment, sub_range|
+        interval.segment.each_in_range(range_within_interval) do |sub_segment, sub_range|
           yield(sub_segment, sub_range)
         end
       else

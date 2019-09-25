@@ -12,7 +12,7 @@ module IntervalResponse::ToRackResponseTriplet
       @interval_response.each do |segment, range_in_segment|
         case segment
         when IntervalResponse::LazyFile
-          segment.with do |file_handle|
+          segment.with do |_file_handle|
             with_each_chunk(range_in_segment) do |offset, read_n|
               segment.seek(offset, IO::SEEK_SET)
               yield segment.read_nonblock(read_n, buf)

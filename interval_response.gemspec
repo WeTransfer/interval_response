@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
-  spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
+  spec.files = Dir.chdir(File.expand_path('..', __FILE__)) do
     `git ls-files -z`.split("\x0")
   end
   spec.bindir        = "exe"
@@ -42,4 +42,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3"
   spec.add_development_dependency "complexity_assert"
   spec.add_development_dependency "rack-test"
+  spec.add_development_dependency "wetransfer_style"
 end

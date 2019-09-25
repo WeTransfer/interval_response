@@ -12,7 +12,7 @@ class IntervalResponse::Multi
     # not counting the two leading hyphens".
     # Modulo-based random is biased but it doesn't matter much for us (we do not need to
     # be extremely secure here)
-    @boundary = SecureRandom.bytes(24).unpack("C*").map {|b| ALPHABET[b % ALPHABET.length] }.join
+    @boundary = SecureRandom.bytes(24).unpack("C*").map { |b| ALPHABET[b % ALPHABET.length] }.join
   end
 
   def each

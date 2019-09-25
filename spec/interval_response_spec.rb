@@ -9,26 +9,26 @@ RSpec.describe IntervalResponse do
       response = IntervalResponse.new(seq, _http_range_header = nil, _if_range_header = nil)
       expect(response.status_code).to eq(200)
       expect(response.content_length).to eq(0)
-      expect(response.headers).to eq({
-        "Accept-Ranges"=>"bytes",
-        "Content-Length"=>"0",
-        "Content-Type"=>"binary/octet-stream",
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "0",
+        "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
-      })
-      expect {|b|
+      )
+      expect { |b|
         response.each(&b)
       }.not_to yield_control
 
       response = IntervalResponse.new(seq, 'bytes=0-', _if_range = nil)
       expect(response.status_code).to eq(200)
       expect(response.content_length).to eq(0)
-      expect(response.headers).to eq({
-        "Accept-Ranges"=>"bytes",
-        "Content-Length"=>"0",
-        "Content-Type"=>"binary/octet-stream",
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "0",
+        "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
-      })
-      expect {|b|
+      )
+      expect { |b|
         response.each(&b)
       }.not_to yield_control
     end
@@ -47,13 +47,13 @@ RSpec.describe IntervalResponse do
       response = IntervalResponse.new(seq, _http_range_header = nil, _if_range = nil)
       expect(response.status_code).to eq(200)
       expect(response.content_length).to eq(3 + 4 + 1)
-      expect(response.headers).to eq({
-        "Accept-Ranges"=>"bytes",
-        "Content-Length"=>"8",
-        "Content-Type"=>"binary/octet-stream",
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "8",
+        "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
-      })
-      expect {|b|
+      )
+      expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 0..2], [segment_b, 0..3], [segment_c, 0..0])
     end
@@ -62,14 +62,14 @@ RSpec.describe IntervalResponse do
       response = IntervalResponse.new(seq, "bytes=2-4", _if_range = nil)
       expect(response.status_code).to eq(206)
       expect(response.content_length).to eq(3)
-      expect(response.headers).to eq({
-        "Accept-Ranges"=>"bytes",
-        "Content-Length"=>"3",
-        "Content-Range"=>"bytes 2-4/8",
-        "Content-Type"=>"binary/octet-stream",
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "3",
+        "Content-Range" => "bytes 2-4/8",
+        "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
-      })
-      expect {|b|
+      )
+      expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 2..2], [segment_b, 0..1])
     end
@@ -78,14 +78,14 @@ RSpec.describe IntervalResponse do
       response = IntervalResponse.new(seq, "bytes=2-4", _if_range = seq.etag)
       expect(response.status_code).to eq(206)
       expect(response.content_length).to eq(3)
-      expect(response.headers).to eq({
-        "Accept-Ranges"=>"bytes",
-        "Content-Length"=>"3",
-        "Content-Range"=>"bytes 2-4/8",
-        "Content-Type"=>"binary/octet-stream",
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "3",
+        "Content-Range" => "bytes 2-4/8",
+        "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
-      })
-      expect {|b|
+      )
+      expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 2..2], [segment_b, 0..1])
     end
@@ -94,27 +94,27 @@ RSpec.describe IntervalResponse do
       response = IntervalResponse.new(seq, _http_range_header = "bytes=12901-", _http_if_range = '"different"')
       expect(response.status_code).to eq(200)
       expect(response.content_length).to eq(8)
-      expect(response.headers).to eq({
-        "Accept-Ranges"=>"bytes",
-        "Content-Length"=>"8",
-        "Content-Type"=>"binary/octet-stream",
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "8",
+        "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
-      })
+      )
     end
 
     it 'responds with the range that can be satisfied if asked for 2 of which one is unsatisfiable' do
       response = IntervalResponse.new(seq, _http_range_header = "bytes=0-5,12901-", _http_if_range = nil)
       expect(response.status_code).to eq(206)
       expect(response.content_length).to eq(6)
-      expect(response.headers).to eq({
-        "Accept-Ranges"=>"bytes",
-        "Content-Length"=>"6",
-        "Content-Range"=>"bytes 0-5/8",
-        "Content-Type"=>"binary/octet-stream",
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "6",
+        "Content-Range" => "bytes 0-5/8",
+        "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
-      })
+      )
 
-      expect {|b|
+      expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 0..2], [segment_b, 0..2])
     end
@@ -125,12 +125,12 @@ RSpec.describe IntervalResponse do
 
       expect(response.status_code).to eq(206)
       expect(response.content_length).to eq(190)
-      expect(response.headers).to eq({
-        "Accept-Ranges"=>"bytes",
-        "Content-Length"=>"190",
-        "Content-Type"=>"multipart/byte-ranges; boundary=tcROXEYMdRNXRRYstW296yM1",
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "190",
+        "Content-Type" => "multipart/byte-ranges; boundary=tcROXEYMdRNXRRYstW296yM1",
         'ETag' => seq.etag,
-      })
+      )
 
       output = StringIO.new
       response.each do |segment, range|

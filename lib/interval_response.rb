@@ -22,9 +22,7 @@ module IntervalResponse
     # _within_ that representation, but the representation has since changed and the offsets
     # no longer make sense. In that case we are supposed to answer with a 200 and the full
     # monty.
-    if http_if_range_header_or_nil && http_if_range_header_or_nil != interval_map.etag
-      return new(interval_map, ENTIRE_RESOURCE_RANGE, nil)
-    end
+    return new(interval_map, ENTIRE_RESOURCE_RANGE, nil) if http_if_range_header_or_nil && http_if_range_header_or_nil != interval_map.etag
 
     if http_if_range_header_or_nil
       Measurometer.increment_counter('interval_response.if_range_provided')
@@ -38,7 +36,7 @@ module IntervalResponse
     end
   end
 
-  def self.prepare_response(interval_map, http_range_header_value_or_nil, http_if_range_header_or_nil)
+  def self.prepare_response(interval_map, http_range_header_value_or_nil, _http_if_range_header_or_nil)
     # Case 1 - response of 0 bytes (empty resource).
     # We don't even have to parse the Range header for this since
     # the response will be the same, always.
@@ -50,19 +48,13 @@ module IntervalResponse
 
     # Case 2 - Client did send us a Range header, but Rack discarded
     # it because it is invalid and cannot be satisfied
-    if http_range_header_value_or_nil && http_ranges.empty?
-      return Invalid.new(interval_map)
-    end
+    return Invalid.new(interval_map) if http_range_header_value_or_nil && http_ranges.empty?
 
     # Case 3 - entire resource
-    if http_ranges.length == 1 && http_ranges.first == (0..(interval_map.size - 1))
-      return Full.new(interval_map)
-    end
+    return Full.new(interval_map) if http_ranges.length == 1 && http_ranges.first == (0..(interval_map.size - 1))
 
     # Case 4 - one content range
-    if http_ranges.length == 1
-      return Single.new(interval_map, http_ranges)
-    end
+    return Single.new(interval_map, http_ranges) if http_ranges.length == 1
 
     # Case 5 - MIME multipart with multiple content ranges
     Multi.new(interval_map, http_ranges)

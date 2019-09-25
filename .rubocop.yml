@@ -1,0 +1,3 @@
+inherit_gem:
+  wetransfer_style: ruby/default.yml
+

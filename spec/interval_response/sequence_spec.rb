@@ -8,7 +8,9 @@ RSpec.describe IntervalResponse::Sequence do
       expect(seq.size).to eq(0)
       expect(seq).to be_empty
 
-      a, b, c = double(:a, size: 6), double(:b, size: 12), double(:c, size: 17)
+      a = double(:a, size: 6)
+      b = double(:b, size: 12)
+      c = double(:c, size: 17)
       seq << a << b << c
 
       expect(seq).not_to be_empty
@@ -26,12 +28,12 @@ RSpec.describe IntervalResponse::Sequence do
       }.to yield_successive_args([b, 1..11], [c, 0..9])
 
       expect { |b|
-        seq.each_in_range(0..(6 + 12 -1), &b)
+        seq.each_in_range(0..(6 + 12 - 1), &b)
       }.to yield_successive_args([a, 0..5], [b, 0..11])
     end
 
     it 'generates the ETag for an empty sequence, and the etag contains data' do
-      seq  = described_class.new
+      seq = described_class.new
       etag_for_sequence = seq.etag
       expect(etag_for_sequence).to start_with('"')
       expect(etag_for_sequence).to end_with('"')
@@ -39,18 +41,19 @@ RSpec.describe IntervalResponse::Sequence do
     end
 
     it 'generates the ETag dependent on the sequence composition' do
-      a, b, c = double(:a, size: 6), double(:b, size: 12), double(:c, size: 17)
-      seq  = described_class.new(a, b, c)
+      a = double(:a, size: 6)
+      b = double(:b, size: 12)
+      c = double(:c, size: 17)
+      seq = described_class.new(a, b, c)
       etag_for_sequence = seq.etag
       expect(etag_for_sequence).to start_with('"')
       expect(etag_for_sequence).to end_with('"')
 
-      d, e, f = double(:a, size: 6), double(:b, size: 12), double(:c, size: 17)
-      seq  = described_class.new(a, b, c)
+      seq = described_class.new(a, b, c)
       etag_for_sequence_of_same_sizes = seq.etag
       expect(etag_for_sequence_of_same_sizes).to eq(etag_for_sequence)
 
-      seq  = described_class.new(a, b, double(size: 7))
+      seq = described_class.new(a, b, double(size: 7))
       etag_for_sequence_of_same_sizes = seq.etag
       expect(etag_for_sequence_of_same_sizes).not_to eq(etag_for_sequence)
     end

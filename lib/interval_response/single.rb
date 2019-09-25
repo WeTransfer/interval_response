@@ -9,7 +9,7 @@ class IntervalResponse::Single
   end
 
   # Serve the part of the interval map
-  def each(&blk)
+  def each
     @interval_map.each_in_range(@http_range) do |segment, range_in_segment|
       yield(segment, range_in_segment)
     end
