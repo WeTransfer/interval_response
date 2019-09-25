@@ -36,7 +36,15 @@ class IntervalResponse::Sequence
       int_start, int_end = interval.offset, interval.offset + interval.size - 1
       req_start, req_end = from_range_in_resource.begin, from_range_in_resource.end
       range_within_interval = (max(int_start, req_start) - int_start)..(min(int_end, req_end) - int_start)
-      yield(interval.segment, range_within_interval)
+
+      # Allow Sequences to be composed together
+      if interval.segment.respond_to?(:each_in_range)
+        interval.segment.each_in_range(range_within_interval) do | sub_segment, sub_range|
+          yield(sub_segment, sub_range)
+        end
+      else
+        yield(interval.segment, range_within_interval)
+      end
     end
   end
 

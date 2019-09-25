@@ -66,7 +66,7 @@ RSpec.describe IntervalResponse::Sequence do
       }.to yield_successive_args([a, 0..2], [b, 0..3], [c, 0..0])
     end
 
-    xit 'is composable' do
+    it 'is composable' do
       a = double('a', size: 3)
       b = double('b', size: 4)
       c = double('c', size: 1)
