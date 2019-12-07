@@ -40,6 +40,14 @@ RSpec.describe IntervalResponse::Sequence do
       expect(etag_for_sequence.bytesize).to be > 8
     end
 
+    it 'accepts objects that only respond to #bytesize and not #size' do
+      a = double(:a, bytesize: 6)
+      b = double(:b, bytesize: 12)
+      c = double(:c, bytesize: 17)
+      seq = described_class.new(a, b, c)
+      expect(seq.size).to eq(6 + 12 + 17)
+    end
+
     it 'generates the ETag dependent on the sequence composition' do
       a = double(:a, size: 6)
       b = double(:b, size: 12)

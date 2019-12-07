@@ -18,11 +18,17 @@ class IntervalResponse::Sequence
   end
 
   def <<(segment)
-    return self if segment.size == 0
     segment_size_or_bytesize = segment.respond_to?(:bytesize) ? segment.bytesize : segment.size
-    @intervals << Interval.new(segment, segment_size_or_bytesize, @size, @intervals.length)
-    @size += segment.size
+    return self if segment_size_or_bytesize == 0
+
+    add_segment(segment, size: segment_size_or_bytesize)
     self
+    self
+  end
+
+  def add_segment(segment, size:)
+    @intervals << Interval.new(segment, size, @size, @intervals.length)
+    @size += size
   end
 
   def each_in_range(from_range_in_resource)
