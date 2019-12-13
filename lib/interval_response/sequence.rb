@@ -23,7 +23,6 @@ class IntervalResponse::Sequence
 
     add_segment(segment, size: segment_size_or_bytesize)
     self
-    self
   end
 
   def add_segment(segment, size:)
