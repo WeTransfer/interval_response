@@ -51,7 +51,7 @@ module IntervalResponse
 
     # Case 2 - Client did send us a Range header, but Rack discarded
     # it because it is invalid and cannot be satisfied
-    return Invalid.new(interval_map) if http_range_header_value_or_nil && http_ranges.empty?
+    return Invalid.new(interval_map) if http_range_header_value_or_nil && (http_ranges.nil? || http_ranges.empty?)
 
     # Case 3 - entire resource
     return Full.new(interval_map) if http_ranges.length == 1 && http_ranges.first == (0..(interval_map.size - 1))
