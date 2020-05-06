@@ -58,7 +58,7 @@ RSpec.describe IntervalResponse do
       }.to yield_successive_args([segment_a, 0..2], [segment_b, 0..3], [segment_c, 0..0])
     end
 
-    it 'raises an error if the requested range is invalid' do
+    it 'returns 416 if the requested range is invalid' do
       response = IntervalResponse.new(seq, "bytes=6-5", _if_range = nil)
       expect(response.status_code).to eq(416)
       expect(response.headers).to eq(
