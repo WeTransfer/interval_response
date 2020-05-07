@@ -58,6 +58,18 @@ RSpec.describe IntervalResponse do
       }.to yield_successive_args([segment_a, 0..2], [segment_b, 0..3], [segment_c, 0..0])
     end
 
+    it 'returns 416 if the requested range is invalid' do
+      response = IntervalResponse.new(seq, "bytes=6-5", _if_range = nil)
+      expect(response.status_code).to eq(416)
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        'Content-Length' => IntervalResponse::Invalid::ERROR_JSON.bytesize.to_s,
+        "Content-Type" => "application/json",
+        'Content-Range' => "bytes */#{seq.size}",
+        'ETag' => seq.etag
+      )
+    end
+
     it 'returns a single HTTP range if the client asked for it and it can be satisfied' do
       response = IntervalResponse.new(seq, "bytes=2-4", _if_range = nil)
       expect(response.status_code).to eq(206)
