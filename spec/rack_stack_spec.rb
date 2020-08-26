@@ -7,7 +7,7 @@ RSpec.describe 'IntervalResponse used in a Rack application' do
   let(:app) do
     ->(env) {
       interval_sequence = IntervalResponse::Sequence.new(*segments)
-      response = IntervalResponse.new(interval_sequence, env['HTTP_RANGE'], env['HTTP_IF_RANGE'])
+      response = IntervalResponse.new(interval_sequence, env)
       response.to_rack_response_triplet
     }
   end
