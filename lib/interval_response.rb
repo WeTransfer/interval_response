@@ -36,13 +36,13 @@ module IntervalResponse
       Measurometer.increment_counter('interval_response.if_range_not_provided', 1)
     end
 
-    prepare_response(interval_map, http_range_header_value, http_if_range_header_value).tap do |res|
+    prepare_response(interval_map, http_range_header_value).tap do |res|
       response_type_name_for_metric = res.class.to_s.split('::').last.downcase # Some::Module::Empty => empty
       Measurometer.increment_counter('interval_response.resp_%s' % response_type_name_for_metric, 1)
     end
   end
 
-  def self.prepare_response(interval_map, http_range_header_value, _http_if_range_header_value)
+  def self.prepare_response(interval_map, http_range_header_value)
     # Case 1 - response of 0 bytes (empty resource).
     # We don't even have to parse the Range header for this since
     # the response will be the same, always.
@@ -65,4 +65,6 @@ module IntervalResponse
     # Case 5 - MIME multipart with multiple content ranges
     Multi.new(interval_map, http_ranges)
   end
+
+  private_class_method :prepare_response
 end
