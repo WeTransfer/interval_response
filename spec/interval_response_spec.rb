@@ -20,7 +20,7 @@ RSpec.describe IntervalResponse do
         response.each(&b)
       }.not_to yield_control
 
-      response = IntervalResponse.new(seq, {'HTTP_RANGE' => 'bytes=0-'})
+      response = IntervalResponse.new(seq, 'HTTP_RANGE' => 'bytes=0-')
       expect(response.status_code).to eq(200)
       expect(response.content_length).to eq(0)
       expect(response.headers).to eq(
@@ -62,7 +62,7 @@ RSpec.describe IntervalResponse do
     end
 
     it 'returns 416 if the requested range is invalid' do
-      response = IntervalResponse.new(seq, {'HTTP_RANGE' => "bytes=6-5"})
+      response = IntervalResponse.new(seq, 'HTTP_RANGE' => "bytes=6-5")
       expect(response.status_code).to eq(416)
       expect(response.headers).to eq(
         "Accept-Ranges" => "bytes",
@@ -75,7 +75,7 @@ RSpec.describe IntervalResponse do
     end
 
     it 'returns a single HTTP range if the client asked for it and it can be satisfied' do
-      response = IntervalResponse.new(seq, {"HTTP_RANGE" => "bytes=2-4"})
+      response = IntervalResponse.new(seq, "HTTP_RANGE" => "bytes=2-4")
       expect(response.status_code).to eq(206)
       expect(response.content_length).to eq(3)
       expect(response.headers).to eq(
@@ -92,7 +92,7 @@ RSpec.describe IntervalResponse do
     end
 
     it 'returns a single HTTP range if the client asked for it and it can be satisfied, ETag matches' do
-      response = IntervalResponse.new(seq, {"HTTP_RANGE" => "bytes=2-4", "HTTP_IF_RANGE" => seq.etag})
+      response = IntervalResponse.new(seq, "HTTP_RANGE" => "bytes=2-4", "HTTP_IF_RANGE" => seq.etag)
       expect(response.status_code).to eq(206)
       expect(response.content_length).to eq(3)
       expect(response.headers).to eq(
@@ -109,7 +109,7 @@ RSpec.describe IntervalResponse do
     end
 
     it 'responss with the entier resource if the Range is satisfiable but the If-Range specifies a different ETag than the sequence' do
-      response = IntervalResponse.new(seq, {"HTTP_RANGE" => "bytes=12901-", "HTTP_IF_RANGE" => '"different"'})
+      response = IntervalResponse.new(seq, "HTTP_RANGE" => "bytes=12901-", "HTTP_IF_RANGE" => '"different"')
       expect(response.status_code).to eq(200)
       expect(response.content_length).to eq(8)
       expect(response.headers).to eq(
@@ -122,7 +122,7 @@ RSpec.describe IntervalResponse do
     end
 
     it 'responds with the range that can be satisfied if asked for 2, of which one is unsatisfiable' do
-      response = IntervalResponse.new(seq, {"HTTP_RANGE" => "bytes=0-5,12901-"})
+      response = IntervalResponse.new(seq, "HTTP_RANGE" => "bytes=0-5,12901-")
       expect(response.status_code).to eq(206)
       expect(response.content_length).to eq(6)
       expect(response.headers).to eq(
@@ -140,7 +140,7 @@ RSpec.describe IntervalResponse do
     end
 
     it 'responds with MIME multipart of ranges if the client asked for it and it can be satisfied' do
-      response = IntervalResponse.new(seq, {"HTTP_RANGE" => "bytes=0-0,2-2"})
+      response = IntervalResponse.new(seq, "HTTP_RANGE" => "bytes=0-0,2-2")
       response.instance_variable_set('@boundary', 'tcROXEYMdRNXRRYstW296yM1')
 
       expect(response.status_code).to eq(206)

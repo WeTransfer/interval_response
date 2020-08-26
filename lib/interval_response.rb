@@ -19,7 +19,7 @@ module IntervalResponse
   def self.new(interval_sequence, rack_env_headers)
     http_range_header_value = rack_env_headers['HTTP_RANGE']
     http_if_range_header_value = rack_env_headers['HTTP_IF_RANGE']
-    
+
     # If the 'If-Range' header is provided but does not match, discard the Range header. It means
     # that the client is requesting a certain representation of the resource and wants a range
     # _within_ that representation, but the representation has since changed and the offsets
@@ -27,7 +27,7 @@ module IntervalResponse
     # monty.
     if http_if_range_header_value && http_if_range_header_value != interval_sequence.etag
       Measurometer.increment_counter('interval_response.if_range_mismatch', 1)
-      return new(interval_sequence, {'HTTP_RANGE' => ENTIRE_RESOURCE_RANGE})
+      return new(interval_sequence, 'HTTP_RANGE' => ENTIRE_RESOURCE_RANGE)
     end
 
     if http_if_range_header_value
