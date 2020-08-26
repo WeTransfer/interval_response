@@ -12,10 +12,10 @@ module IntervalResponse::ToRackResponseTriplet
       @interval_response.each do |segment, range_in_segment|
         case segment
         when IntervalResponse::LazyFile
-          segment.with do |_file_handle|
+          segment.with do |file_handle|
             with_each_chunk(range_in_segment) do |offset, read_n|
-              segment.seek(offset, IO::SEEK_SET)
-              yield segment.read_nonblock(read_n, buf)
+              file_handle.seek(offset, IO::SEEK_SET)
+              yield file_handle.read(read_n, buf)
             end
           end
         when String
@@ -25,7 +25,7 @@ module IntervalResponse::ToRackResponseTriplet
         when IO, Tempfile
           with_each_chunk(range_in_segment) do |offset, read_n|
             segment.seek(offset, IO::SEEK_SET)
-            yield segment.read_nonblock(read_n, buf)
+            yield segment.read(read_n, buf)
           end
         else
           raise TypeError, "RackBodyWrapper only supports IOs or Strings"

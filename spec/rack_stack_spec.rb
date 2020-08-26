@@ -49,4 +49,19 @@ RSpec.describe 'IntervalResponse used in a Rack application' do
     expect(last_response.status).to eq(206)
     expect(last_response.content_length).to eq(56897)
   end
+
+  it 'serves from LazyFile objects' do
+    tiny = "tiny string"
+    file_a = tempfile_with_random_bytes(4 * 1024 * 1024)
+    file_b = tempfile_with_random_bytes(7 * 1024 * 1024)
+
+    @segments = [tiny, IntervalResponse::LazyFile.new(file_a.path), IntervalResponse::LazyFile.new(file_b.path)]
+    get '/big', nil, 'HTTP_RANGE' => 'bytes=1-5'
+    expect(last_response.status).to eq(206)
+    expect(last_response.content_length).to eq(5)
+
+    get '/big', nil, 'HTTP_RANGE' => 'bytes=2-56898'
+    expect(last_response.status).to eq(206)
+    expect(last_response.content_length).to eq(56897)
+  end
 end
