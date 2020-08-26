@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Assemble HTTP responses from spliced sequences of payloads}
   spec.description   = %q{Assemble HTTP responses from spliced sequences of payloads}
   spec.homepage      = "https://github.com/WeTransfer/interval_response"
-  spec.license       = "MIT"
+  spec.licenses       = ['MIT (Hippocratic)']
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
