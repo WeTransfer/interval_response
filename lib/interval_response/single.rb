@@ -8,6 +8,10 @@ class IntervalResponse::Single
     @http_range = http_ranges.first
   end
 
+  def etag
+    @interval_map.etag
+  end
+
   # Serve the part of the interval map
   def each
     @interval_map.each_in_range(@http_range) do |segment, range_in_segment|
@@ -30,7 +34,7 @@ class IntervalResponse::Single
       'Content-Length' => (@http_range.end - @http_range.begin + 1).to_s,
       'Content-Type' => 'binary/octet-stream',
       'Content-Range' => c_range,
-      'ETag' => @interval_map.etag,
+      'ETag' => etag,
     }
   end
 end

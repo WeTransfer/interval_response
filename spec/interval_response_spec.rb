@@ -15,6 +15,7 @@ RSpec.describe IntervalResponse do
         "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
       )
+      expect(response.etag).to eq(seq.etag)
       expect { |b|
         response.each(&b)
       }.not_to yield_control
@@ -28,6 +29,7 @@ RSpec.describe IntervalResponse do
         "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
       )
+      expect(response.etag).to eq(seq.etag)
       expect { |b|
         response.each(&b)
       }.not_to yield_control
@@ -53,6 +55,7 @@ RSpec.describe IntervalResponse do
         "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
       )
+      expect(response.etag).to eq(seq.etag)
       expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 0..2], [segment_b, 0..3], [segment_c, 0..0])
@@ -68,6 +71,7 @@ RSpec.describe IntervalResponse do
         'Content-Range' => "bytes */#{seq.size}",
         'ETag' => seq.etag
       )
+      expect(response.etag).to eq(seq.etag)
     end
 
     it 'returns a single HTTP range if the client asked for it and it can be satisfied' do
@@ -81,6 +85,7 @@ RSpec.describe IntervalResponse do
         "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
       )
+      expect(response.etag).to eq(seq.etag)
       expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 2..2], [segment_b, 0..1])
@@ -97,6 +102,7 @@ RSpec.describe IntervalResponse do
         "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
       )
+      expect(response.etag).to eq(seq.etag)
       expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 2..2], [segment_b, 0..1])
@@ -112,6 +118,7 @@ RSpec.describe IntervalResponse do
         "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
       )
+      expect(response.etag).to eq(seq.etag)
     end
 
     it 'responds with the range that can be satisfied if asked for 2, of which one is unsatisfiable' do
@@ -125,6 +132,7 @@ RSpec.describe IntervalResponse do
         "Content-Type" => "binary/octet-stream",
         'ETag' => seq.etag,
       )
+      expect(response.etag).to eq(seq.etag)
 
       expect { |b|
         response.each(&b)
@@ -143,6 +151,7 @@ RSpec.describe IntervalResponse do
         "Content-Type" => "multipart/byte-ranges; boundary=tcROXEYMdRNXRRYstW296yM1",
         'ETag' => seq.etag,
       )
+      expect(response.etag).to eq(seq.etag)
 
       output = StringIO.new
       response.each do |segment, range|

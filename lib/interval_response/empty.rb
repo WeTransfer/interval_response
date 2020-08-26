@@ -6,6 +6,10 @@ class IntervalResponse::Empty
     @interval_map = interval_map
   end
 
+  def etag
+    @interval_map.etag
+  end
+
   def each
     # No-op
   end
@@ -23,7 +27,7 @@ class IntervalResponse::Empty
       'Accept-Ranges' => 'bytes',
       'Content-Length' => '0',
       'Content-Type' => 'binary/octet-stream',
-      'ETag' => @interval_map.etag,
+      'ETag' => etag,
     }
   end
 end

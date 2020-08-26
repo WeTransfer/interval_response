@@ -6,6 +6,10 @@ class IntervalResponse::Full
     @interval_map = interval_map
   end
 
+  def etag
+    @interval_map.etag
+  end
+
   def each
     # serve the part of the interval map
     full_range = 0..(@interval_map.size - 1)
@@ -27,7 +31,7 @@ class IntervalResponse::Full
       'Accept-Ranges' => 'bytes',
       'Content-Length' => @interval_map.size.to_s,
       'Content-Type' => 'binary/octet-stream',
-      'ETag' => @interval_map.etag,
+      'ETag' => etag,
     }
   end
 end

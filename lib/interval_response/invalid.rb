@@ -8,6 +8,10 @@ class IntervalResponse::Invalid
     @interval_map = segment_map
   end
 
+  def etag
+    @interval_map.etag
+  end
+
   def each
     full_segment_range = (0..(ERROR_JSON.bytesize - 1))
     yield(ERROR_JSON, full_segment_range)
@@ -27,7 +31,7 @@ class IntervalResponse::Invalid
       'Content-Length' => ERROR_JSON.bytesize.to_s,
       'Content-Type' => 'application/json',
       'Content-Range' => "bytes */#{@interval_map.size}",
-      'ETag' => @interval_map.etag,
+      'ETag' => etag,
     }
   end
 end

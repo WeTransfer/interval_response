@@ -15,6 +15,10 @@ class IntervalResponse::Multi
     @boundary = SecureRandom.bytes(24).unpack("C*").map { |b| ALPHABET[b % ALPHABET.length] }.join
   end
 
+  def etag
+    @interval_map.etag
+  end
+
   def each
     # serve the part of the interval map
     @http_ranges.each_with_index do |http_range, range_i|
@@ -46,7 +50,7 @@ class IntervalResponse::Multi
       'Accept-Ranges' => 'bytes',
       'Content-Length' => content_length.to_s,
       'Content-Type' => "multipart/byte-ranges; boundary=#{@boundary}",
-      'ETag' => @interval_map.etag,
+      'ETag' => etag,
     }
   end
 
