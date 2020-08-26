@@ -7,7 +7,7 @@ require 'digest'
 # `#size` at time of adding to the IntervalSequence.
 class IntervalResponse::Sequence
   MULTIPART_GENRATOR_FINGERPRINT = 'boo'
-  Interval = Struct.new(:segment, :size, :offset, :position)
+  Interval = Struct.new(:segment, :size, :offset, :position, :etag)
 
   attr_reader :size
 
@@ -25,8 +25,8 @@ class IntervalResponse::Sequence
     self
   end
 
-  def add_segment(segment, size:)
-    @intervals << Interval.new(segment, size, @size, @intervals.length)
+  def add_segment(segment, size:, etag: size)
+    @intervals << Interval.new(segment, size, @size, @intervals.length, etag)
     @size += size
   end
 
@@ -90,7 +90,8 @@ class IntervalResponse::Sequence
   def etag
     d = Digest::SHA1.new
     d << IntervalResponse::VERSION
-    d << Marshal.dump(@intervals.map(&:size))
+    etag_components_derived_from_intervals = @intervals.map(&:etag)
+    d << Marshal.dump(etag_components_derived_from_intervals)
     '"%s"' % d.hexdigest
   end
 

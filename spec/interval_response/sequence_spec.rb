@@ -66,6 +66,23 @@ RSpec.describe IntervalResponse::Sequence do
       expect(etag_for_sequence_of_same_sizes).not_to eq(etag_for_sequence)
     end
 
+    it 'takes explicit etags into account if they are set on the intervals' do
+      seq = described_class.new
+      seq.add_segment(:a, size: 6)
+      etag_of_size_6 = seq.etag
+
+      seq = described_class.new
+      seq.add_segment(:a, size: 6)
+      another_etag_of_size_6 = seq.etag
+
+      seq = described_class.new
+      seq.add_segment(:a, size: 6, etag: "Some random etag")
+      etag_set_explicitly = seq.etag
+
+      expect(etag_of_size_6).to eq(another_etag_of_size_6)
+      expect(etag_of_size_6).not_to eq(etag_set_explicitly)
+    end
+
     it 'can handle a range that stretches outside of the available range' do
       a = double('a', size: 3)
       b = double('b', size: 4)
