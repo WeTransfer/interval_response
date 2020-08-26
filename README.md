@@ -1,7 +1,9 @@
 # IntervalResponse
 
 is a little piece of machinery which allows your Rack/Rails application to correctly
-serve HTTP `Range:` responses. Features:
+serve HTTP `Range:` responses. It allows you to "stitch" together multiple spans of
+data (such as long strings, files or remote resources) and then serve them out in response
+to requests with `Range:` headers. Features:
 
 * Strong ETags depending on response composition
 * Correct response codes/headers/offsets
