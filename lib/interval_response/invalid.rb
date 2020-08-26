@@ -5,11 +5,11 @@ class IntervalResponse::Invalid
   ERROR_JSON = '{"message": "Ranges cannot be satisfied"}'
 
   def initialize(segment_map)
-    @interval_map = segment_map
+    @interval_sequence = segment_map
   end
 
   def etag
-    @interval_map.etag
+    @interval_sequence.etag
   end
 
   def each
@@ -30,7 +30,7 @@ class IntervalResponse::Invalid
       'Accept-Ranges' => 'bytes',
       'Content-Length' => ERROR_JSON.bytesize.to_s,
       'Content-Type' => 'application/json',
-      'Content-Range' => "bytes */#{@interval_map.size}",
+      'Content-Range' => "bytes */#{@interval_sequence.size}",
       'ETag' => etag,
     }
   end

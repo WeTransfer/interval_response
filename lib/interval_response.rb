@@ -16,7 +16,7 @@ module IntervalResponse
 
   ENTIRE_RESOURCE_RANGE = 'bytes=0-'
 
-  def self.new(interval_map, rack_env_headers)
+  def self.new(interval_sequence, rack_env_headers)
     http_range_header_value = rack_env_headers['HTTP_RANGE']
     http_if_range_header_value = rack_env_headers['HTTP_IF_RANGE']
     
@@ -25,9 +25,9 @@ module IntervalResponse
     # _within_ that representation, but the representation has since changed and the offsets
     # no longer make sense. In that case we are supposed to answer with a 200 and the full
     # monty.
-    if http_if_range_header_value && http_if_range_header_value != interval_map.etag
+    if http_if_range_header_value && http_if_range_header_value != interval_sequence.etag
       Measurometer.increment_counter('interval_response.if_range_mismatch', 1)
-      return new(interval_map, {'HTTP_RANGE' => ENTIRE_RESOURCE_RANGE})
+      return new(interval_sequence, {'HTTP_RANGE' => ENTIRE_RESOURCE_RANGE})
     end
 
     if http_if_range_header_value
@@ -36,34 +36,34 @@ module IntervalResponse
       Measurometer.increment_counter('interval_response.if_range_not_provided', 1)
     end
 
-    prepare_response(interval_map, http_range_header_value).tap do |res|
+    prepare_response(interval_sequence, http_range_header_value).tap do |res|
       response_type_name_for_metric = res.class.to_s.split('::').last.downcase # Some::Module::Empty => empty
       Measurometer.increment_counter('interval_response.resp_%s' % response_type_name_for_metric, 1)
     end
   end
 
-  def self.prepare_response(interval_map, http_range_header_value)
+  def self.prepare_response(interval_sequence, http_range_header_value)
     # Case 1 - response of 0 bytes (empty resource).
     # We don't even have to parse the Range header for this since
     # the response will be the same, always.
-    return Empty.new(interval_map) if interval_map.empty?
+    return Empty.new(interval_sequence) if interval_sequence.empty?
 
     # Parse the HTTP Range: header
     range_request_header = http_range_header_value || ENTIRE_RESOURCE_RANGE
-    http_ranges = Rack::Utils.get_byte_ranges(range_request_header, interval_map.size)
+    http_ranges = Rack::Utils.get_byte_ranges(range_request_header, interval_sequence.size)
 
     # Case 2 - Client did send us a Range header, but Rack discarded
     # it because it is invalid and cannot be satisfied
-    return Invalid.new(interval_map) if http_range_header_value && (http_ranges.nil? || http_ranges.empty?)
+    return Invalid.new(interval_sequence) if http_range_header_value && (http_ranges.nil? || http_ranges.empty?)
 
     # Case 3 - entire resource
-    return Full.new(interval_map) if http_ranges.length == 1 && http_ranges.first == (0..(interval_map.size - 1))
+    return Full.new(interval_sequence) if http_ranges.length == 1 && http_ranges.first == (0..(interval_sequence.size - 1))
 
     # Case 4 - one content range
-    return Single.new(interval_map, http_ranges) if http_ranges.length == 1
+    return Single.new(interval_sequence, http_ranges) if http_ranges.length == 1
 
     # Case 5 - MIME multipart with multiple content ranges
-    Multi.new(interval_map, http_ranges)
+    Multi.new(interval_sequence, http_ranges)
   end
 
   private_class_method :prepare_response

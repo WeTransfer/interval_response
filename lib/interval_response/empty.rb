@@ -2,12 +2,12 @@
 class IntervalResponse::Empty
   include IntervalResponse::ToRackResponseTriplet
 
-  def initialize(interval_map)
-    @interval_map = interval_map
+  def initialize(interval_sequence)
+    @interval_sequence = interval_sequence
   end
 
   def etag
-    @interval_map.etag
+    @interval_sequence.etag
   end
 
   def each

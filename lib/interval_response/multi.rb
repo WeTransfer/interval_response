@@ -5,8 +5,8 @@ class IntervalResponse::Multi
 
   ALPHABET = ('0'..'9').to_a + ('a'..'z').to_a + ('A'..'Z').to_a
 
-  def initialize(interval_map, http_ranges)
-    @interval_map = interval_map
+  def initialize(interval_sequence, http_ranges)
+    @interval_sequence = interval_sequence
     @http_ranges = http_ranges
     # RFC1521 says that a boundary "must be no longer than 70 characters,
     # not counting the two leading hyphens".
@@ -16,7 +16,7 @@ class IntervalResponse::Multi
   end
 
   def etag
-    @interval_map.etag
+    @interval_sequence.etag
   end
 
   def each
@@ -25,7 +25,7 @@ class IntervalResponse::Multi
       part_header = part_header(range_i, http_range)
       entire_header_range = 0..(part_header.bytesize - 1)
       yield(part_header, entire_header_range)
-      @interval_map.each_in_range(http_range) do |segment, range_in_segment|
+      @interval_sequence.each_in_range(http_range) do |segment, range_in_segment|
         yield(segment, range_in_segment)
       end
     end
@@ -69,7 +69,7 @@ class IntervalResponse::Multi
       part_index > 0 ? "\r\n" : "", # Parts follwing the first have to be delimited "at the top"
       "--%s\r\n" % @boundary,
       "Content-Type: binary/octet-stream\r\n",
-      "Content-Range: bytes %d-%d/%d\r\n" % [http_r.begin, http_r.end, @interval_map.size],
+      "Content-Range: bytes %d-%d/%d\r\n" % [http_r.begin, http_r.end, @interval_sequence.size],
       "\r\n",
     ].join
   end
