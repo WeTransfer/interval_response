@@ -19,7 +19,7 @@ Wrap them in an `IntervalResponse` and return it to Rack:
 verses_app = ->(env) {
   all_verses = ImportantVerse.all.map(&:verse_text)
   interval_sequence = IntervalResponse::Sequence.new(*all_verses)
-  response = IntervalResponse.new(interval_sequence, env['HTTP_RANGE'], env['HTTP_IF_RANGE'])
+  response = IntervalResponse.new(interval_sequence, env)
   response.to_rack_response_triplet
 }
 ```
@@ -32,7 +32,7 @@ Or imagine you want to serve out a few very large log files, concatenated togeth
   # do not have to stay open during the entire response output
   lazy_files = log_paths.map { |path| IntervalResponse::LazyFile.new(path) }
   interval_sequence = IntervalResponse::Sequence.new(*lazy_files)
-  response = IntervalResponse.new(interval_sequence, env['HTTP_RANGE'], env['HTTP_IF_RANGE'])
+  response = IntervalResponse.new(interval_sequence, env)
   response.to_rack_response_triplet(headers: {'X-Server' => 'teapot'})
 ```
 
