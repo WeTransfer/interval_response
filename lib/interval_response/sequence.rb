@@ -6,7 +6,6 @@ require 'digest'
 # Every interval contains a *segment* - an arbitrary object which responds to
 # `#size` at time of adding to the IntervalSequence.
 class IntervalResponse::Sequence
-  MULTIPART_GENRATOR_FINGERPRINT = 'boo'
   Interval = Struct.new(:segment, :size, :offset, :position, :etag)
 
   attr_reader :size
