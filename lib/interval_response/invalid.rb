@@ -1,16 +1,7 @@
-# Serves out a response that is of size 0
-class IntervalResponse::Invalid
-  include IntervalResponse::ToRackResponseTriplet
+# Serves out a response for 416 responses (invalid range request)
+class IntervalResponse::Invalid < IntervalResponse::Abstract
 
   ERROR_JSON = '{"message": "Ranges cannot be satisfied"}'
-
-  def initialize(segment_map)
-    @interval_sequence = segment_map
-  end
-
-  def etag
-    @interval_sequence.etag
-  end
 
   def each
     full_segment_range = (0..(ERROR_JSON.bytesize - 1))

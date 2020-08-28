@@ -8,27 +8,56 @@ require 'digest'
 class IntervalResponse::Sequence
   Interval = Struct.new(:segment, :size, :offset, :position, :etag)
 
+  # @return [Integer] the sum of sizes of all the segments of the sequence
   attr_reader :size
 
+  # Creates a new Sequence with given segments.
+  #
+  # @param segments[Array<#size,#bytesize>] Segments which respond to #size or #bytesize
   def initialize(*segments)
     @intervals = []
     @size = 0
     segments.each { |s| self << s }
   end
 
+  # Adds a segment to the sequence. The segment gets added at the end of the sequence.
+  #
+  # @param segment[#size,#bytesize] Segment which responds to #size or #bytesize
+  # @return self
   def <<(segment)
     segment_size_or_bytesize = segment.respond_to?(:bytesize) ? segment.bytesize : segment.size
-    return self if segment_size_or_bytesize == 0
-
     add_segment(segment, size: segment_size_or_bytesize)
+  end
+
+  # Adds a segment to the sequence with specifying the size and optionally the ETag value
+  # of the segment. ETag defaults to the size of the segment. Segment can be any object
+  # as the size gets passed as a keyword argument
+  #
+  # @param segment[Object] Any object can be used as the segment
+  # @param size[Integer] The size of the segment
+  # @param etag[Object] An object that defines the ETag for the segment. Can be any object that can
+  #   be Marshal.dump - ed.
+  # @return self
+  def add_segment(segment, size:, etag: size)
+    if size > 0
+      @intervals << Interval.new(segment, size, @size, @intervals.length, etag)
+      @size += size
+    end
     self
   end
 
-  def add_segment(segment, size:, etag: size)
-    @intervals << Interval.new(segment, size, @size, @intervals.length, etag)
-    @size += size
-  end
-
+  # Yields every segment which is touched by the given Range in resource in sequence,
+  # together with a Range object which defines the necessary part of the segment.
+  # For example, calling `each_in_range(0..2)` with 2 segments of size 1 and 2
+  # will successively yield [segment1, 0..0] then [segment2, 0..1]
+  #
+  # Interval sequences can be nested - you can place a Sequence inside another Sequence
+  # as a segment. In that case when you call `each_in_range` on the outer Sequence and you
+  # need to retrieve data from the inner Sequence which is one of the segments, the call will
+  # yield the segments from the inner Sequence, "drilling down" as deep as is appropriate.
+  #
+  # @param from_range_in_resource[Range] an inclusive Range that specifies the range within the segment map
+  # @yield segment[Object], range_in_segment[Range]
   def each_in_range(from_range_in_resource)
     # Skip empty ranges
     requested_range_size = (from_range_in_resource.end - from_range_in_resource.begin) + 1
@@ -56,6 +85,7 @@ class IntervalResponse::Sequence
     end
   end
 
+  # Tells whether the size of the entire sequence is 0
   def empty?
     @size == 0
   end
@@ -86,6 +116,11 @@ class IntervalResponse::Sequence
   # enclosed in double-quotes.
   #
   # See for more https://blogs.msdn.microsoft.com/ieinternals/2011/06/03/download-resumption-in-internet-explorer/
+  #
+  # The ETag value gets derived from the ETags of the segments, which will be Marshal.dump'ed together
+  # and then added to the hash digest to produce the final ETag value.
+  #
+  # @return [String] a string delimited with double-quotes
   def etag
     d = Digest::SHA1.new
     d << IntervalResponse::VERSION

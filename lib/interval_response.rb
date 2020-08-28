@@ -5,8 +5,8 @@ module IntervalResponse
   class Error < StandardError; end
 
   require_relative "interval_response/version"
-  require_relative "interval_response/to_rack_response_triplet"
   require_relative "interval_response/sequence"
+  require_relative "interval_response/abstract"
   require_relative "interval_response/empty"
   require_relative "interval_response/single"
   require_relative "interval_response/invalid"
@@ -16,6 +16,19 @@ module IntervalResponse
 
   ENTIRE_RESOURCE_RANGE = 'bytes=0-'
 
+  # Creates a new IntervalResponse object. The object returned does not
+  # have a specific class, but is one of the following objects, which
+  # all support the same interface:
+  #
+  # * IntervalResponse::Empty for an empty response
+  # * IntervalResponse::Single for a single HTTP range
+  # * IntervalResponse::Full for the entire resource
+  # * IntervalResponse::Multi for multipart ranges response with multiple HTTP ranges
+  # * IntervalResponse::Invalid for responses that are 416 (Unsatisfiable range)
+  #
+  # @param interval_sequence[IntervalResponse::Sequence] the sequence of segments
+  # @param rack_env_headers[Hash] the Rack env, or a Hash containing 'HTTP_RANGE' and 'HTTP_IF_RANGE' headers
+  # @return [Empty, Single, Full, Multi, Invalid]
   def self.new(interval_sequence, rack_env_headers)
     http_range_header_value = rack_env_headers['HTTP_RANGE']
     http_if_range_header_value = rack_env_headers['HTTP_IF_RANGE']
@@ -60,7 +73,7 @@ module IntervalResponse
     return Full.new(interval_sequence) if http_ranges.length == 1 && http_ranges.first == (0..(interval_sequence.size - 1))
 
     # Case 4 - one content range
-    return Single.new(interval_sequence, http_ranges) if http_ranges.length == 1
+    return Single.new(interval_sequence, http_ranges[0]) if http_ranges.length == 1
 
     # Case 5 - MIME multipart with multiple content ranges
     Multi.new(interval_sequence, http_ranges)

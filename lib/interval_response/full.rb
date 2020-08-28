@@ -1,14 +1,5 @@
 # Serves out a response that contains the entire resource
-class IntervalResponse::Full
-  include IntervalResponse::ToRackResponseTriplet
-
-  def initialize(interval_sequence, *)
-    @interval_sequence = interval_sequence
-  end
-
-  def etag
-    @interval_sequence.etag
-  end
+class IntervalResponse::Full < IntervalResponse::Abstract
 
   def each
     # serve the part of the interval map

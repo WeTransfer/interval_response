@@ -1,22 +1,15 @@
-require 'securerandom'
-
-class IntervalResponse::Multi
-  include IntervalResponse::ToRackResponseTriplet
-
+class IntervalResponse::Multi < IntervalResponse::Abstract
   ALPHABET = ('0'..'9').to_a + ('a'..'z').to_a + ('A'..'Z').to_a
 
+  # @param http_ranges[Array<Range>]
   def initialize(interval_sequence, http_ranges)
     @interval_sequence = interval_sequence
     @http_ranges = http_ranges
     # RFC1521 says that a boundary "must be no longer than 70 characters,
     # not counting the two leading hyphens".
-    # Modulo-based random is biased but it doesn't matter much for us (we do not need to
+    # Standard Ruby randomness is biased but it doesn't matter much for us (we do not need to
     # be extremely secure here)
-    @boundary = SecureRandom.bytes(24).unpack("C*").map { |b| ALPHABET[b % ALPHABET.length] }.join
-  end
-
-  def etag
-    @interval_sequence.etag
+    @boundary = ALPHABET.sample(24).join
   end
 
   def each

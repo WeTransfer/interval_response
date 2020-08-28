@@ -1,19 +1,5 @@
 # Serves out a response that is of size 0
-class IntervalResponse::Empty
-  include IntervalResponse::ToRackResponseTriplet
-
-  def initialize(interval_sequence)
-    @interval_sequence = interval_sequence
-  end
-
-  def etag
-    @interval_sequence.etag
-  end
-
-  def each
-    # No-op
-  end
-
+class IntervalResponse::Empty < IntervalResponse::Abstract
   def status_code
     200
   end

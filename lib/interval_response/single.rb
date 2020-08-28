@@ -1,15 +1,11 @@
 # Serves out a response that consists of one HTTP Range,
 # which is always not the entire resource
-class IntervalResponse::Single
-  include IntervalResponse::ToRackResponseTriplet
+class IntervalResponse::Single < IntervalResponse::Abstract
 
-  def initialize(interval_sequence, http_ranges)
+  # @param http_range[Range]
+  def initialize(interval_sequence, http_range)
     @interval_sequence = interval_sequence
-    @http_range = http_ranges.first
-  end
-
-  def etag
-    @interval_sequence.etag
+    @http_range = http_range
   end
 
   # Serve the part of the interval map
