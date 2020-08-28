@@ -1,7 +1,6 @@
 # Serves out a response that consists of one HTTP Range,
 # which is always not the entire resource
 class IntervalResponse::Single < IntervalResponse::Abstract
-
   # @param http_range[Range]
   def initialize(interval_sequence, http_range)
     @interval_sequence = interval_sequence

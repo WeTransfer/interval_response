@@ -1,6 +1,5 @@
 # Base class for all response types, primarily for ease of documentation
 class IntervalResponse::Abstract
-
   # The Rack body wrapper is intended to return as the third element
   # of the Rack response triplet. It supports the #each method
   # and will call to the IntervalResponse object given to it

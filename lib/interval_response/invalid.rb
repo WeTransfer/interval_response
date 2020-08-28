@@ -1,6 +1,5 @@
 # Serves out a response for 416 responses (invalid range request)
 class IntervalResponse::Invalid < IntervalResponse::Abstract
-
   ERROR_JSON = '{"message": "Ranges cannot be satisfied"}'
 
   def each

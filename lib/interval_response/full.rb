@@ -1,6 +1,5 @@
 # Serves out a response that contains the entire resource
 class IntervalResponse::Full < IntervalResponse::Abstract
-
   def each
     # serve the part of the interval map
     full_range = 0..(@interval_sequence.size - 1)
