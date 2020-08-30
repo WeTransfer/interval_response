@@ -1,12 +1,13 @@
 require 'digest'
 
-# An interval sequence represents a linear sequence of non-overlapping,
+# Represents a linear sequence of non-overlapping,
 # joined intervals. For example, an HTTP response which consists of
 # multiple edge included segments, or a timeline with clips joined together.
 # Every interval contains a *segment* - an arbitrary object which responds to
 # `#size` at time of adding to the IntervalSequence.
 class IntervalResponse::Sequence
   Interval = Struct.new(:segment, :size, :offset, :position, :etag)
+  private_constant :Interval
 
   # @return [Integer] the sum of sizes of all the segments of the sequence
   attr_reader :size
