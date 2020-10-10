@@ -41,7 +41,8 @@ class IntervalResponse::Sequence
   # @return self
   def add_segment(segment, size:, etag: size)
     if size > 0
-      @intervals << Interval.new(segment, size, @size, @intervals.length, etag)
+      etag_quoted = '"%s"' % etag
+      @intervals << Interval.new(segment, size, @size, @intervals.length, etag_quoted)
       @size += size
     end
     self
@@ -125,8 +126,9 @@ class IntervalResponse::Sequence
   def etag
     d = Digest::SHA1.new
     d << IntervalResponse::VERSION
-    etag_components_derived_from_intervals = @intervals.map(&:etag)
-    d << Marshal.dump(etag_components_derived_from_intervals)
+    @intervals.each do |interval|
+      d << interval.etag
+    end
     '"%s"' % d.hexdigest
   end
 
