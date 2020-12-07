@@ -42,6 +42,8 @@ class IntervalResponse::Sequence
   def add_segment(segment, size:, etag: size)
     if size > 0
       etag_quoted = '"%s"' % etag
+      # We save the index of the interval inside the Struct so that we can
+      # use `bsearch` later instead of requiring `bsearch_index` to be available
       @intervals << Interval.new(segment, size, @size, @intervals.length, etag_quoted)
       @size += size
     end
@@ -143,6 +145,10 @@ class IntervalResponse::Sequence
   end
 
   def interval_under(offset)
+    # For our purposes we would be better served by `bsearch_index`, but it is not available
+    # on older Ruby versions which we otherwise can splendidly support. Since when we retrieve
+    # the interval under offset we are going to need the index anyway, and since calling `Array#index`
+    # will incur another linear scan of the array, we save the index of the interval with the interval itself.
     @intervals.bsearch do |interval|
       # bsearch expects a 0 return value for "exact match".
       # -1 tells it "look to my left" and 1 "look to my right",
