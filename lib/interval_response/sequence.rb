@@ -67,10 +67,9 @@ class IntervalResponse::Sequence
     requested_range_size = (from_range_in_resource.end - from_range_in_resource.begin) + 1
     return if requested_range_size < 1
 
-    # ...and if the range misses our intervals completely
+    # Then walk through included intervals. If the range misses
+    # our intervals completely included_intervals will be empty.
     included_intervals = intervals_within_range(from_range_in_resource)
-
-    # And normal case - walk through included intervals
     included_intervals.each do |interval|
       int_start = interval.offset
       int_end = interval.offset + interval.size - 1
