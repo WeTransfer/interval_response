@@ -5,6 +5,7 @@ module IntervalResponse
   class Error < StandardError; end
 
   require_relative "interval_response/version"
+  require_relative "interval_response/rack_body_wrapper"
   require_relative "interval_response/sequence"
   require_relative "interval_response/abstract"
   require_relative "interval_response/empty"
