@@ -108,7 +108,7 @@ RSpec.describe IntervalResponse do
       }.to yield_successive_args([segment_a, 2..2], [segment_b, 0..1])
     end
 
-    it 'responss with the entier resource if the Range is satisfiable but the If-Range specifies a different ETag than the sequence' do
+    it 'responds with the entire resource if the Range is satisfiable but the If-Range specifies a different ETag than the sequence' do
       response = IntervalResponse.new(seq, "HTTP_RANGE" => "bytes=12901-", "HTTP_IF_RANGE" => '"different"')
       expect(response.status_code).to eq(200)
       expect(response.content_length).to eq(8)
