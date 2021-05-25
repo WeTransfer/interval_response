@@ -47,6 +47,14 @@ class IntervalResponse::Multi < IntervalResponse::Abstract
     }
   end
 
+  def satisfied_with_first_interval?
+    @interval_sequence.first_interval_only?(*@http_ranges)
+  end
+
+  def multiple_ranges?
+    true
+  end
+
   private
 
   def compute_envelope_size

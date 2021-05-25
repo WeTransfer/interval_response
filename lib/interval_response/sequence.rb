@@ -60,8 +60,15 @@ class IntervalResponse::Sequence
   # need to retrieve data from the inner Sequence which is one of the segments, the call will
   # yield the segments from the inner Sequence, "drilling down" as deep as is appropriate.
   #
+  # Three arguments will be yielded to the block - the segment (the "meat" of an interval, which
+  # is the object given when the interval was added to the Sequence), the range within the interval
+  # (which is always going to be an inclusive `Range` of integers) and a boolean flag indicating whether
+  # this interval is the very first interval in the requested subset of the sequence. This flag honors nesting
+  # (if you have arbitrarily nested interval Sequences and you request something from the first interval of
+  # several Sequences deep it will still indicate `true`).
+  #
   # @param from_range_in_resource[Range] an inclusive Range that specifies the range within the segment map
-  # @yield segment[Object], range_in_segment[Range]
+  # @yield segment[Object], range_in_segment[Range], is_first_interval[Boolean]
   def each_in_range(from_range_in_resource)
     # Skip empty ranges
     requested_range_size = (from_range_in_resource.end - from_range_in_resource.begin) + 1
@@ -76,14 +83,15 @@ class IntervalResponse::Sequence
       req_start = from_range_in_resource.begin
       req_end = from_range_in_resource.end
       range_within_interval = (max(int_start, req_start) - int_start)..(min(int_end, req_end) - int_start)
+      is_first_interval = interval.position == 0
 
       # Allow Sequences to be composed together
       if interval.segment.respond_to?(:each_in_range)
-        interval.segment.each_in_range(range_within_interval) do |sub_segment, sub_range|
-          yield(sub_segment, sub_range)
+        interval.segment.each_in_range(range_within_interval) do |sub_segment, sub_range, is_first_nested_interval|
+          yield(sub_segment, sub_range, is_first_interval && is_first_nested_interval)
         end
       else
-        yield(interval.segment, range_within_interval)
+        yield(interval.segment, range_within_interval, is_first_interval)
       end
     end
   end
@@ -131,6 +139,19 @@ class IntervalResponse::Sequence
       d << interval.etag
     end
     '"%s"' % d.hexdigest
+  end
+
+  # Tells whether all of the given `ranges` will be satisfied from the first interval only. This can be used to
+  # redirect to the resource at that interval instead of proxying it through, since the `Range` header won't need to
+  # be adjusted
+  def first_interval_only?(*ranges)
+    ranges.map do |range|
+      each_in_range(range) do |_, _, is_first_interval|
+        return false unless is_first_interval
+      end
+    end
+
+    true
   end
 
   private
