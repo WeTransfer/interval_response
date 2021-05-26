@@ -56,6 +56,9 @@ RSpec.describe IntervalResponse do
         'ETag' => seq.etag,
       )
       expect(response.etag).to eq(seq.etag)
+      expect(response).not_to be_multiple_ranges
+      expect(response).not_to be_satisfied_with_first_interval
+
       expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 0..2], [segment_b, 0..3], [segment_c, 0..0])
@@ -72,6 +75,8 @@ RSpec.describe IntervalResponse do
         'ETag' => seq.etag
       )
       expect(response.etag).to eq(seq.etag)
+      expect(response).not_to be_multiple_ranges
+      expect(response).not_to be_satisfied_with_first_interval
     end
 
     it 'returns a single HTTP range if the client asked for it and it can be satisfied' do
@@ -86,9 +91,32 @@ RSpec.describe IntervalResponse do
         'ETag' => seq.etag,
       )
       expect(response.etag).to eq(seq.etag)
+      expect(response).not_to be_multiple_ranges
+      expect(response).not_to be_satisfied_with_first_interval
+
       expect { |b|
         response.each(&b)
       }.to yield_successive_args([segment_a, 2..2], [segment_b, 0..1])
+    end
+
+    it 'returns a single HTTP range if the client asked for it and hints it can be satisfied from the first interval' do
+      response = IntervalResponse.new(seq, "HTTP_RANGE" => "bytes=0-0")
+      expect(response.status_code).to eq(206)
+      expect(response.content_length).to eq(1)
+      expect(response.headers).to eq(
+        "Accept-Ranges" => "bytes",
+        "Content-Length" => "1",
+        "Content-Range" => "bytes 0-0/8",
+        "Content-Type" => "binary/octet-stream",
+        'ETag' => seq.etag,
+      )
+      expect(response.etag).to eq(seq.etag)
+      expect(response).not_to be_multiple_ranges
+      expect(response).to be_satisfied_with_first_interval
+
+      expect { |b|
+        response.each(&b)
+      }.to yield_successive_args([segment_a, 0..0])
     end
 
     it 'returns a single HTTP range if the client asked for it and it can be satisfied, ETag matches' do
@@ -119,6 +147,8 @@ RSpec.describe IntervalResponse do
         'ETag' => seq.etag,
       )
       expect(response.etag).to eq(seq.etag)
+      expect(response).not_to be_multiple_ranges
+      expect(response).not_to be_satisfied_with_first_interval
     end
 
     it 'responds with the range that can be satisfied if asked for 2, of which one is unsatisfiable' do
@@ -133,6 +163,8 @@ RSpec.describe IntervalResponse do
         'ETag' => seq.etag,
       )
       expect(response.etag).to eq(seq.etag)
+      expect(response).not_to be_multiple_ranges
+      expect(response).not_to be_satisfied_with_first_interval
 
       expect { |b|
         response.each(&b)
@@ -152,6 +184,8 @@ RSpec.describe IntervalResponse do
         'ETag' => seq.etag,
       )
       expect(response.etag).to eq(seq.etag)
+      expect(response).to be_multiple_ranges
+      expect(response).to be_satisfied_with_first_interval
 
       output = StringIO.new
       response.each do |segment, range|

@@ -17,19 +17,35 @@ RSpec.describe IntervalResponse::Sequence do
       expect(seq.size).to eq(6 + 12 + 17)
       expect { |b|
         seq.each_in_range(0..0, &b)
-      }.to yield_with_args(a, 0..0)
+      }.to yield_with_args(a, 0..0, true)
 
       expect { |b|
         seq.each_in_range(0..7, &b)
-      }.to yield_successive_args([a, 0..5], [b, 0..1])
+      }.to yield_successive_args([a, 0..5, true], [b, 0..1, false])
 
       expect { |b|
         seq.each_in_range(7..27, &b)
-      }.to yield_successive_args([b, 1..11], [c, 0..9])
+      }.to yield_successive_args([b, 1..11, false], [c, 0..9, false])
 
       expect { |b|
         seq.each_in_range(0..(6 + 12 - 1), &b)
-      }.to yield_successive_args([a, 0..5], [b, 0..11])
+      }.to yield_successive_args([a, 0..5, true], [b, 0..11, false])
+    end
+
+    it 'indicates whether the first interval will satisfy a set of Ranges' do
+      seq = described_class.new
+
+      a = double(:a, size: 6)
+      b = double(:b, size: 12)
+      c = double(:c, size: 17)
+      seq << a << b << c
+
+      expect(seq).to be_first_interval_only(0..0)
+      expect(seq).to be_first_interval_only(0..0, 0..5)
+      expect(seq).not_to be_first_interval_only(0..6)
+      expect(seq).not_to be_first_interval_only(3..8)
+      expect(seq).not_to be_first_interval_only(15..16)
+      expect(seq).not_to be_first_interval_only(0..0, 15..16)
     end
 
     it 'generates the ETag for an empty sequence, and the etag contains data' do
@@ -91,7 +107,7 @@ RSpec.describe IntervalResponse::Sequence do
       seq = described_class.new(a, b, c)
       expect { |b|
         seq.each_in_range(0..27, &b)
-      }.to yield_successive_args([a, 0..2], [b, 0..3], [c, 0..0])
+      }.to yield_successive_args([a, 0..2, true], [b, 0..3, false], [c, 0..0, false])
     end
 
     it 'is composable' do
@@ -103,7 +119,7 @@ RSpec.describe IntervalResponse::Sequence do
 
       expect { |b|
         seq.each_in_range(0..27, &b)
-      }.to yield_successive_args([a, 0..2], [b, 0..3], [c, 0..0])
+      }.to yield_successive_args([a, 0..2, true], [b, 0..3, false], [c, 0..0, false])
     end
 
     it 'has close to linear performance with large number of ranges and intervals' do

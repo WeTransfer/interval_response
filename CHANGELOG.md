@@ -1,3 +1,13 @@
+# 0.1.7
+
+* Move `RackResponseWrapper` into the main namespace
+* Add `#satisfied_with_first_interval?` so that certain Range: requests can be served using a redirect
+* Add `#multiple_ranges?` so that one can choose not to honor multipart Range requests
+
+# 0.1.6
+
+* Create a base response type (`Abstract`) which has the same interface as the rest of the responses
+
 # 0.1.5
 
 * Change the API of `IntervalResponse.new` to accept the Rack `env` hash directly, without having the caller extract the header values manually.

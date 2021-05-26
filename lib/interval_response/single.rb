@@ -32,4 +32,8 @@ class IntervalResponse::Single < IntervalResponse::Abstract
       'ETag' => etag,
     }
   end
+
+  def satisfied_with_first_interval?
+    @interval_sequence.first_interval_only?(@http_range)
+  end
 end
